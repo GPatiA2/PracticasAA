@@ -51,7 +51,7 @@ def main2():
     print(t)
     
 #version iterativa
-def integra_mc1(func, a, b, num_puntos = 1000000):
+def integra_mc1(func, a, b, num_puntos = 10000):
     
     punto_f = func(a)
     por_debajo = 0
@@ -76,7 +76,7 @@ def integra_mc1(func, a, b, num_puntos = 1000000):
 def toma_tiempos(f, a, b):
     t_bucles = []
     t_vectorizado = []
-    tamanios = np.linspace(1,10000,2000, dtype = int)
+    tamanios = np.linspace(1,1000000,1000, dtype = int)
     for i in tamanios:
         tv = tiempo_vectorizado(f,a,b,i)
         tb = tiempo_bucles(f,a,b,i)
@@ -95,3 +95,5 @@ def tiempo_bucles(f,a,b,num_puntos):
     res = integra_mc1(f,a,b,num_puntos)
     fin = time.process_time()
     return (fin-prev)*1000
+
+main3()
