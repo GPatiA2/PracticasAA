@@ -36,7 +36,7 @@ def main3():
     plt.scatter(t[2],t[0], c = 'red', label = 'bucle')
     plt.scatter(t[2],t[1], c = 'blue', label = 'vectorizado')
     plt.legend()
-    plt.savefig('tiempos.png')
+    plt.savefig('tiempos3.png')
 
 def main1():
     args = sys.argv
