@@ -25,9 +25,9 @@ def normalizar(df):
     scaler.fit(dfaux)
     res = scaler.transform(dfaux)
     
-    dfres = pd.DataFrame(res)
+    
 
-    return dfres , scaler
+    return res , scaler
 
 def dividirDataSet(ds, rs):
 # Divide el conjunto de entrenamiento en Entrenamiento, Validacion y Prueba

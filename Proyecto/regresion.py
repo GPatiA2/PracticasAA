@@ -105,7 +105,6 @@ def evalua():
 
 def evaluar_validacion(L, EX, EY, VX, VY):
     Theta = oneVsAll(EX, EY, 4, L)
-    print(Theta[0:2])
     asig = []
     for i in range(VX.shape[0]):
         l = np.dot(Theta, VX[i])
