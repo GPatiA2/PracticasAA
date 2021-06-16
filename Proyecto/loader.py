@@ -27,7 +27,7 @@ def normalizar(df):
     
     dfres = pd.DataFrame(res)
 
-    return dfres , scalers
+    return dfres , scaler
 
 def dividirDataSet(ds, rs):
 # Divide el conjunto de entrenamiento en Entrenamiento, Validacion y Prueba
@@ -41,5 +41,24 @@ def terminosPolinomicos(df,n):
     p = PolynomialFeatures(n)
     res = p.fit_transform(df)
 
-    return pd.DataFrame(res)
+    return res
+    
+def carga_Numpy(rs):
+# Carga los datos en formato Numpy y los divide en entrenamiento validacion y prueba
+    _, _, F = cargarDatos()
+    E, V, P = dividirDataSet(F,rs)
+    E = E.to_numpy()
+    V = V.to_numpy()
+    P = P.to_numpy()
+
+    Ex = E[:,:-1]
+    Ey = E[:,-1]
+
+    Vx = V[:,:-1]
+    Vy = V[:,-1]
+
+    Px = P[:,:-1]
+    Py = P[:,-1]
+
+    return Ex,Ey,Vx,Vy,Px,Py
 
