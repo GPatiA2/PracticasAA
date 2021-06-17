@@ -99,7 +99,7 @@ def evalua():
 
         y2 = np.ravel(Y)
         t = (asig == y2) * 1
-        perc = (sum(t) / 5000) * 100
+        perc = (sum(t) / X.shape[0]) * 100
         print("Porcentaje de aciertos con lambda = {} : ".format(Lamda), perc, "%")
 
 
@@ -117,6 +117,7 @@ def evaluar_validacion(L, EX, EY, VX, VY):
     perc = (sum(t) / VX.shape[0]) * 100
 
     return perc, asig
+
 
 def preparaFunciones(Lambda):
     c = lambda Theta, X, Y: coste_reg(Theta, X, Y, Lambda)
