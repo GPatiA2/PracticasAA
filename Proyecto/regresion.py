@@ -32,7 +32,7 @@ def one_hot(y, et):
 def coste(Theta, X, Y):
     G = sigmoide(np.dot(X, Theta))
     sum1 = np.dot(Y, np.log(G))
-    sum2 = np.dot((1-Y), np.log(1 - G))
+    sum2 = np.dot((1-Y), np.log(1 - G + 1e-6))
     return (-1 / X.shape[0]) * (sum1 + sum2)
 
 def gradiente(Theta, X, Y):
