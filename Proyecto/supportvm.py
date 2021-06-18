@@ -4,14 +4,29 @@ import sklearn.svm as skl
 from scipy.io import loadmat
 from sklearn.metrics import accuracy_score
 
+
+def evaluar_probar(Ex,Ey,Px,Py,C,Sigma):
+    score = 0
+
+    svm = skl.SVC(kernel = 'rbf' , C = C, gamma = 1/(2*Sigma**2))
+    
+    svm.fit(Ex,Ey)
+    predP = svm.predict(Px)
+    aciertosP = sum((predP == Py)*1) / Px.shape[0] * 100
+
+    predE = svm.predict(Ex)
+    aciertosE = sum((predE == Ey)*1) / Ex.shape[0] * 100
+
+    return aciertosE , aciertosP
+
 def evalua_Lambdas(Ex, Ey, Vx, Vy, Px, Py, params):
     
     scores = np.zeros((len(params), len(params)))
     res = list()
 
     for v in params:
-    
         for sigma in params:
+
             svm = skl.SVC(kernel = 'rbf', C = v, gamma = 1/(2*sigma**2))
             svm.fit(Ex, Ey)
             xpred = svm.predict(Vx)
@@ -57,3 +72,5 @@ def evalua_Kernels(Ex, Ey, Vx, Vy, Px, Py, C, sigma):
     print(kernels[ind[0][0]], accuracy_score(Py, svm.predict(Px)))
     
     return kernels[ind[0][0]], accuracy_score(Py, svm.predict(Px))
+
+
