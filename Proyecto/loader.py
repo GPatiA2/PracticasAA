@@ -52,13 +52,13 @@ def carga_Numpy(rs):
     P = P.to_numpy()
 
     Ex = E[:,:-1]
-    Ey = E[:,-1]
+    Ey = np.ravel(E[:,-1])
 
     Vx = V[:,:-1]
-    Vy = V[:,-1]
-
+    Vy = np.ravel(V[:,-1])
+    
     Px = P[:,:-1]
-    Py = P[:,-1]
+    Py = np.ravel(P[:,-1])
 
     return Ex,Ey,Vx,Vy,Px,Py
 

@@ -116,9 +116,59 @@ def prueba_neurona(X, y, theta1, theta2):
     return (sum((result + 1)%4 == y) / n * 100)
 
 
+def validacion_redes(random_state, num_labels, iteraciones, hiddens, lambdas, colores = ['r', 'b' , 'g', 'm']):
+    
+    Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
+    
+    y_onehot = one_hot(Ey, 4)
+
+    input_size = Ex.shape[1]
+
+    INIT_EPSILON = 0.12
+
+    for hidden_size in hiddens:
+
+        theta1 = np.random.random((hidden_size,(input_size + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+        theta2 = np.random.random((num_labels,(hidden_size + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+
+        params = np.concatenate((np.ravel(theta1), np.ravel(theta2)))
+
+        plt.figure()
+
+        i = 0
+
+        for reg in lambdas:
+            percent = []
+            for iters in iteraciones:
+                fmin = minimize(fun=backprop, x0=params,
+                        args=(input_size, hidden_size,
+                        num_labels, Ex, y_onehot, reg),
+                        method='TNC', jac=True,
+                        options={'maxiter': iters})
+
+                theta1 = np.reshape(fmin.x[:hidden_size*(input_size + 1)],(hidden_size,(input_size + 1)))
+                theta2 = np.reshape(fmin.x[hidden_size * (input_size+1):],(num_labels,(hidden_size + 1)))
+
+                p = prueba_neurona(Vx, Vy, theta1, theta2)
+                print(p)
+                percent.append(p)
+            plt.plot(iteraciones, percent, c = colores[i] , label = ' lambda = {} '.format(reg))
+            i = i+1
+
+        plt.legend()
+        plt.title("hidden sizes: {}".format(hidden_size))
+        plt.show()
+        
+        
+        
+        
+        
+        
 
 
-#### Para redes de dos capas ocultas
+
+
+#### Para redes de dos capas ocultas(luego hare una para un numero de capas ocultas cualquiera)
 
 
 
@@ -244,3 +294,60 @@ def prueba_neurona2(X, y, theta1, theta2, theta3):
     result = np.argmax(result, axis=1)
 
     return (sum((result + 1)%4 == y) / n * 100)
+
+
+
+
+def validacion_redes2(random_state, num_labels, iteraciones, hiddens1, hiddens2, lambdas, colores = ['r', 'b' , 'g', 'm']):
+    
+    Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
+    
+    y_onehot = one_hot(Ey, 4)
+
+    input_size = Ex.shape[1]
+    
+    INIT_EPSILON = 0.12
+    
+    for hidden_size1 in hiddens1:
+    
+        for hidden_size2 in hiddens2:
+
+            if hidden_size1 >= hidden_size2:
+
+                theta1 = np.random.random((hidden_size1,(input_size + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+                theta2 = np.random.random((hidden_size2,(hidden_size1 + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+                theta3 = np.random.random((num_labels,(hidden_size2 + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+
+                params = np.concatenate((np.ravel(theta1), np.ravel(theta2), np.ravel(theta3)))
+
+                plt.figure()
+
+                i = 0
+
+                for reg in lambdas:
+
+                    percent = []
+
+                    for iters in iteraciones:
+
+                        fmin = minimize(fun=backprop2, x0=params,
+                                args=(input_size, hidden_size1, hidden_size2,
+                                num_labels, Ex, y_onehot, reg),
+                                method='TNC', jac=True,
+                                options={'maxiter': iters})
+
+                        pos = (hidden_size1 * (input_size + 1)) + (hidden_size2 * (hidden_size1 + 1))
+
+                        theta1 = np.reshape(fmin.x[:hidden_size1 * (input_size + 1)], (hidden_size1, (input_size + 1)))
+                        theta2 = np.reshape(fmin.x[hidden_size1 * (input_size + 1): pos ], (hidden_size2, (hidden_size1 + 1)))
+                        theta3 = np.reshape(fmin.x[pos :], (num_labels, (hidden_size2 + 1)))
+
+                        p = prueba_neurona2(Vx, Vy, theta1, theta2, theta3)
+                        print(p)
+                        percent.append(p)
+
+                    plt.plot(iteraciones, percent, c = colores[i] , label = ' lambda = {} '.format(reg))
+                    i = i+1
+                plt.title("hidden sizes: {}, {}".format(hidden_size1, hidden_size2))
+                plt.legend()
+                plt.show()
