@@ -1,9 +1,10 @@
-from loader import *
-from fun_basicas import *
+import loader as ld
+import fun_basicas as fun
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as opt
+from scipy.optimize import minimize
 
 
 def coste(theta1, theta2, X, Y, num_etiquetas):  # Y preparada
@@ -32,11 +33,11 @@ def forward_prop(X, theta1, theta2):
     X = np.hstack([np.ones([n, 1]), X])
 
     # La capa oculta utiliza la primera matriz de pesos para crear sus neuronas y le añade una fila de unos
-    Oculta = sigmoide(np.dot(X, theta1.T))
+    Oculta = fun.sigmoide(np.dot(X, theta1.T))
     Oculta = np.hstack([np.ones([n, 1]), Oculta])
 
     # El resultado se calcula pasando por la segunda matriz de pesos todas las neuronas de la capa oculta
-    Resultado = sigmoide(np.dot(Oculta, theta2.T))
+    Resultado = fun.sigmoide(np.dot(Oculta, theta2.T))
 
     return X, Oculta, Resultado
 
@@ -120,7 +121,7 @@ def validacion_redes(random_state, num_labels, iteraciones, hiddens, lambdas, co
     
     Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
     
-    y_onehot = one_hot(Ey, 4)
+    y_onehot = fun.one_hot(Ey, 4)
 
     input_size = Ex.shape[1]
 
@@ -159,7 +160,58 @@ def validacion_redes(random_state, num_labels, iteraciones, hiddens, lambdas, co
         plt.title("hidden sizes: {}".format(hidden_size))
         plt.show()
         
+
         
+        
+        
+def prueba_redes(random_state, num_labels, iteraciones, hiddens, lambdas, colores = ['r', 'b' , 'g', 'm']):
+    
+    Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
+    
+    y_onehot = fun.one_hot(Ey, 4)
+
+    input_size = Ex.shape[1]
+
+    INIT_EPSILON = 0.12
+
+    for hidden_size in hiddens:
+
+        theta1 = np.random.random((hidden_size,(input_size + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+        theta2 = np.random.random((num_labels,(hidden_size + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+
+        params = np.concatenate((np.ravel(theta1), np.ravel(theta2)))
+
+        plt.figure()
+
+        i = 0
+
+        for reg in lambdas:
+            percent1 = []
+            percent2 = []
+            for iters in iteraciones:
+                fmin = minimize(fun=backprop, x0=params,
+                        args=(input_size, hidden_size,
+                        num_labels, Ex, y_onehot, reg),
+                        method='TNC', jac=True,
+                        options={'maxiter': iters})
+
+                theta1 = np.reshape(fmin.x[:hidden_size*(input_size + 1)],(hidden_size,(input_size + 1)))
+                theta2 = np.reshape(fmin.x[hidden_size * (input_size+1):],(num_labels,(hidden_size + 1)))
+
+                p1 = prueba_neurona(Vx, Vy, theta1, theta2)
+                print("validación = {}".format(p1))
+                p2 = prueba_neurona(Px, Py, theta1, theta2)
+                print("prueba = {}".format(p2))
+                percent1.append(p1)
+                percent2.append(p2)
+
+            plt.plot(iteraciones, percent1, c = colores[i] , label = 'validación')
+            plt.plot(iteraciones, percent2, c = colores[i + 1] , label = 'prueba')
+            i = i+1
+
+        plt.legend()
+        plt.title("hidden sizes: {}".format(hidden_size))
+        plt.show()
         
         
         
@@ -198,14 +250,14 @@ def forward_prop2(X, theta1, theta2, theta3):
     X = np.hstack([np.ones([n, 1]), X])
 
     # Las capas ocultas utilizan la primera y segunda matrices de pesos para crear sus neuronas y les añaden una fila de unos
-    Oculta1 = sigmoide(np.dot(X, theta1.T))
+    Oculta1 = fun.sigmoide(np.dot(X, theta1.T))
     Oculta1 = np.hstack([np.ones([n, 1]), Oculta1])
     
-    Oculta2 = sigmoide(np.dot(Oculta1, theta2.T))
+    Oculta2 = fun.sigmoide(np.dot(Oculta1, theta2.T))
     Oculta2 = np.hstack([np.ones([n, 1]), Oculta2])
 
     # El resultado se calcula pasando por la segunda matriz de pesos todas las neuronas de la capa oculta
-    Resultado = sigmoide(np.dot(Oculta2, theta3.T))
+    Resultado = fun.sigmoide(np.dot(Oculta2, theta3.T))
 
     return X, Oculta1, Oculta2, Resultado
 
@@ -302,7 +354,7 @@ def validacion_redes2(random_state, num_labels, iteraciones, hiddens1, hiddens2,
     
     Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
     
-    y_onehot = one_hot(Ey, 4)
+    y_onehot = fun.one_hot(Ey, 4)
 
     input_size = Ex.shape[1]
     
@@ -347,6 +399,69 @@ def validacion_redes2(random_state, num_labels, iteraciones, hiddens1, hiddens2,
                         percent.append(p)
 
                     plt.plot(iteraciones, percent, c = colores[i] , label = ' lambda = {} '.format(reg))
+                    i = i+1
+                plt.title("hidden sizes: {}, {}".format(hidden_size1, hidden_size2))
+                plt.legend()
+                plt.show()
+                
+           
+        
+                
+                
+def prueba_redes2(random_state, num_labels, iteraciones, hiddens1, hiddens2, lambdas, colores = ['r', 'b' , 'g', 'm']):
+    
+    Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
+    
+    y_onehot = fun.one_hot(Ey, 4)
+
+    input_size = Ex.shape[1]
+    
+    INIT_EPSILON = 0.12
+    
+    for hidden_size1 in hiddens1:
+    
+        for hidden_size2 in hiddens2:
+
+            if hidden_size1 >= hidden_size2:
+
+                theta1 = np.random.random((hidden_size1,(input_size + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+                theta2 = np.random.random((hidden_size2,(hidden_size1 + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+                theta3 = np.random.random((num_labels,(hidden_size2 + 1)))*(2*INIT_EPSILON) - INIT_EPSILON
+
+                params = np.concatenate((np.ravel(theta1), np.ravel(theta2), np.ravel(theta3)))
+
+                plt.figure()
+
+                i = 0
+
+                for reg in lambdas:
+
+                    percent1 = []
+                    percent2 = []
+
+                    for iters in iteraciones:
+
+                        fmin = minimize(fun=backprop2, x0=params,
+                                args=(input_size, hidden_size1, hidden_size2,
+                                num_labels, Ex, y_onehot, reg),
+                                method='TNC', jac=True,
+                                options={'maxiter': iters})
+
+                        pos = (hidden_size1 * (input_size + 1)) + (hidden_size2 * (hidden_size1 + 1))
+
+                        theta1 = np.reshape(fmin.x[:hidden_size1 * (input_size + 1)], (hidden_size1, (input_size + 1)))
+                        theta2 = np.reshape(fmin.x[hidden_size1 * (input_size + 1): pos ], (hidden_size2, (hidden_size1 + 1)))
+                        theta3 = np.reshape(fmin.x[pos :], (num_labels, (hidden_size2 + 1)))
+
+                        p1 = prueba_neurona2(Vx, Vy, theta1, theta2, theta3)
+                        print("validación = {}".format(p1))
+                        p2 = prueba_neurona2(Px, Py, theta1, theta2, theta3)
+                        print("prueba = {}".format(p2))
+                        percent1.append(p1)
+                        percent2.append(p2)
+
+                    plt.plot(iteraciones, percent1, c = colores[i] , label = 'validación')
+                    plt.plot(iteraciones, percent2, c = colores[i + 1] , label = 'prueba')
                     i = i+1
                 plt.title("hidden sizes: {}, {}".format(hidden_size1, hidden_size2))
                 plt.legend()
