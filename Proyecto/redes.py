@@ -82,7 +82,7 @@ def gradiente_reg(theta1, theta2, X, y, Lambda):
     return Delta1, Delta2
 
 
-def backprop(params_rn, num_entradas, num_ocultas1, num_etiquetas, X, y, reg):
+def backprop(params_rn, num_entradas, num_ocultas, num_etiquetas, X, y, reg):
     # backprop devuelve una tupla (coste, gradiente) con el coste y el gradiente de
     # una red neuronal de tres capas , con num_entradas , num_ocultas nodos en la capa
     # oculta y num_etiquetas nodos en la capa de salida. Si m es el numero de ejemplos
