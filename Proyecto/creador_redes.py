@@ -186,6 +186,8 @@ class red_neuronal:
         print("validación = {}".format(p1))
         p2 = self.prueba_neurona(Px, Py, matrices_pesos)
         print("prueba = {}".format(p2))
+
+        return p1, p2
         
         
         
@@ -200,5 +202,15 @@ class red_neuronal:
         result = forward[len(forward)-1]
 
         result = np.argmax(result, axis=1)
+
+        cero = np.where(result == 0)[0]
+        uno = np.where(result == 1)[0]
+        dos = np.where(result == 2)[0]
+        tres = np.where(result == 3)[0]
+
+        print(cero.shape)
+        print(uno.shape)
+        print(dos.shape)
+        print(tres.shape)
 
         return (sum((result + 1)%4 == y) / n * 100)
