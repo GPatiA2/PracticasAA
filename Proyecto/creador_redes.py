@@ -26,8 +26,8 @@ class red_neuronal:
         
 
     def forward_prop(self, entrada,matrices_pesos):
-        # Algoritmo de propagacion hacia delante, devuelve la lista de activaciones de cada capa
-        # El ultimo elemento de la lista devuelta es el resultado de la red para las entradas proporcionadas
+        """ Algoritmo de propagacion hacia delante, devuelve la lista de activaciones de cada capa
+            El ultimo elemento de la lista devuelta es el resultado de la red para las entradas proporcionadas """
         activaciones = []
 
         X = entrada
@@ -53,7 +53,7 @@ class red_neuronal:
     
     
     def coste_reg(self,X,y,reg,matrices_pesos):
-        # Calculo del coste con regularizacion para redes neuronales
+        """ Calculo del coste con regularizacion para redes neuronales utilizando las matrices de pesos que se le pasan """
         activaciones = self.forward_prop(X,matrices_pesos)
         h = activaciones[-1]
         
@@ -69,10 +69,12 @@ class red_neuronal:
     
     
     def gradiente_reg(self, X, y, reg,matrices_pesos):
-        # calculo de gradiente regularizado para redes neuronales
+        """ calculo de gradiente regularizado para redes neuronales haciendo uso de las matrices de pesos dadas """ 
         Deltas = [np.zeros(np.shape(matrices_pesos[i])) for i in range(len(matrices_pesos))]
         activaciones = self.forward_prop(X,matrices_pesos)
 
+        # Bucle para el calculo de de matrices Delta para el calculo de gradiente
+        
         for k in range(len(y)):
             activ = [activaciones[i][k, :] for i in range(len(activaciones))]
 
@@ -81,18 +83,22 @@ class red_neuronal:
             
             j = (len(activaciones) - 1)
             
+            # las dos ultimas deltas tienen un caculo diferente al resto y por tanto se calculan fuera del bucle
+            
             daux = activ[j] - ultimo
             g_aux = activ[j-1] * ( 1 - activ[j-1] )
             Deltas[j - 1] = Deltas[j - 1] + np.dot(daux[:,np.newaxis], activ[j-1][np.newaxis, :])
             daux = np.dot(matrices_pesos[j-1].T, daux) * g_aux
             Deltas[j - 2] = Deltas[j - 2] + np.dot(daux[1:,np.newaxis], activ[j-2][np.newaxis, :])
 
+            # bucle que calcula los valores de las matrices delta que no son las dos ultimas
+            
             for j in range(len(activ)-3, 1, -1):
                 g_aux = activ[j] * ( 1 - activ[j])
                 daux = np.dot(matrices_pesos[j].T, daux[1:]) * g_aux
                 Deltas[j - 1] = Deltas[j - 1] + np.dot(daux[1:,np.newaxis], activ[j-1][np.newaxis, :])
         
-        # parte de regularización
+        # Parte de regularización de las matrices Delta
         for i in range(len(Deltas)):
             Deltas[i] = Deltas[i] / len(y)
             Deltas[i][:, 1:] = Deltas[i][:, 1:] + (reg/len(y)) * matrices_pesos[i][:, 1:]
@@ -103,7 +109,7 @@ class red_neuronal:
     
     def init_aleatorio(self, init):
     
-        # inicializar matrices aleatoriamente
+        """ función para inicializar matrices de pesos aleatoriamente """
         
         matrices_pesos = []
         
@@ -126,7 +132,7 @@ class red_neuronal:
     
     
     def desenlazado(self, params_rn):
-        # """crea una lista con las matrices formadas con sus correctas dimensiones"""
+        """ función que crea una lista con las matrices formadas con sus correctas dimensiones """ 
         matrices_pesos = []
         
         # matriz desde la entrada hasta la primera capa oculta
@@ -134,7 +140,7 @@ class red_neuronal:
                                         (self.nodos_capa[0], (self.entradas + 1))))
         
         
-        # las matriz entre capas ocultas
+        # las matrices entre capas ocultas
         ini = self.nodos_capa[0] * (self.entradas + 1)
         fin = ini
         
@@ -153,8 +159,8 @@ class red_neuronal:
     
 
     def backprop(self, params_rn, X, y, reg):
-        # Devuelve una funcion que calcula el coste y el gradiente de la red neuronal 
-        # Se usa para el optimizar los parametros de la red en la funcion minimize 
+        """ Devuelve una funcion que calcula el coste y el gradiente de la red neuronal 
+            Se usa para el optimizar los parametros de la red en la funcion minimize """ 
         matrices_pesos = self.desenlazado(params_rn)
         
         deltas = self.gradiente_reg(X,y,reg, matrices_pesos)
@@ -170,7 +176,7 @@ class red_neuronal:
     
     
     def prueba_neurona(self, X, y, matrices_pesos):
-        # función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas
+        """ función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas """
         n = len(y)
 
         y = np.ravel(y)
@@ -180,23 +186,19 @@ class red_neuronal:
         result = forward[len(forward)-1]
 
         result = np.argmax(result, axis=1)
-
-        cero = np.where(result == 0)[0]
-        uno = np.where(result == 1)[0]
-        dos = np.where(result == 2)[0]
-        tres = np.where(result == 3)[0]
-
-        print(cero.shape)
-        print(uno.shape)
-        print(dos.shape)
-        print(tres.shape)
+        
+        # Escrive en pantalla el número de elementos que relaciono con cada clase en orden
+        
+        for i in range(salidas):
+            print(np.where(result == i)[0].shape)
 
         return (sum((result + 1)%4 == y) / n * 100)
     
     
     
     def confusion(self, X, y, matrices_pesos):
-        """función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas"""
+        """ función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas 
+            como una matriz de confusión """
         n = len(y)
 
         y = np.ravel(y)
@@ -219,6 +221,10 @@ class red_neuronal:
     
     def entrenar(self, X, y, Vx, Vy, Px, Py, reg, iters, init):
         
+        """ función que para entrenar una la red neuronal creada con unos datos de entrenamiento 'X' e 'y' una serie de iteraciones
+            'iters', con un parametro de regularización 'reg' y con un parametro de inicialización aleatoria de matrices 'init'. 
+            Devuelve el porcentaje de aciertos en el conjunto de validación y de prueba """
+        
         pesos_ravel = self.init_aleatorio(init)
         
         # calculo del minimo
@@ -237,6 +243,8 @@ class red_neuronal:
     
     
     def matriz_confusion(self, X, y, Px, Py,reg, iters, init):
+        """ entrena la red de neuronal y devuelve la matriz de confusión generada con los datos de prueba """
+        
         pesos_ravel = self.init_aleatorio(init)
         
         # calculo del minimo
