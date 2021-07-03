@@ -30,12 +30,14 @@ def one_hot(y, et):
     return y_onehot
 
 def coste(Theta, X, Y):
+    # Calculo del coste en regresion logistica
     G = sigmoide(np.dot(X, Theta))
     sum1 = np.dot(Y, np.log(G))
     sum2 = np.dot((1-Y), np.log(1 - G + 1e-6))
     return (-1 / X.shape[0]) * (sum1 + sum2)
 
 def gradiente(Theta, X, Y):
+    # Calculo del gradiente de regresion logistica
     m = X.shape[0]
     G = sigmoide( np.matmul(X,Theta) )
     gradiente  = (1 / len(Y)) * np.matmul(X.T, G - Y)
@@ -43,6 +45,8 @@ def gradiente(Theta, X, Y):
 
 
 def coste_reg(Theta, X, Y, Lambda):
+    # Coste regularizado en regresion logistica
+    # Utiliza la funcion coste anterior
     c = coste(Theta, X, Y)
     m = X.shape[0]
     e = 0
@@ -53,6 +57,8 @@ def coste_reg(Theta, X, Y, Lambda):
     return c + (Lambda / (2 * m)) * e
 
 def gradiente_reg(Theta,X,Y,Lambda):
+    # Gradiente regularizado de la regresion logistica
+    # Emplea la funcion gradiente anterior
     m = X.shape[0]
     gr = gradiente(Theta,X,Y)
     theta2 = (Lambda/m)*Theta
@@ -60,6 +66,10 @@ def gradiente_reg(Theta,X,Y,Lambda):
 
 
 def optimiza_reg(X, Y, Lambda, et):
+    # Recibe los ejemplos de entrenamiento X , las etiquetas asociadas a esos ejemplos en Y
+    #   , un parametro de regularizacion Lambda y el numero de etiquetas diferentes en et.
+    # Calcula los parametros Theta optimos entrenando el modelo de regresion logistica con los datos de X
+    #   y el parametro de regularizacion Lambda
     X, Y = prepara_datos(X, Y, et)
     c, gr = preparaFunciones(Lambda)
 
@@ -72,6 +82,7 @@ def optimiza_reg(X, Y, Lambda, et):
 
 
 def oneVsAll(X, y, num_etiquetas, reg):
+    # Genera 'num_etiquetas' clasificadores. Cada uno distingue a los elementos de una clase del resto
     params = []
 
     # Por cada tipo de etiqueta se devuelve la Theta optima que reconoce la misma y se añade a un array de Thetas
@@ -104,6 +115,14 @@ def evalua():
 
 
 def evaluar_validacion(L, EX, EY, VX, VY):
+    # Recibe en L un parametro de regularizacion
+    #           EX los ejemplos de entrenamiento
+    #           EY las etiquetas de los ejemplos de entrenamiento
+    #           VX los ejemplos de validacion
+    #           VY las etiquetas de los ejemplos de validacion
+    # Entrena los clasificadores de los ejemplos de entrenamiento y después
+    #    comprueba la precisión del conjunto de clasificadores usando el conjunto
+    #    de validacion
     Theta = oneVsAll(EX, EY, 4, L)
     asig = []
     for i in range(VX.shape[0]):
@@ -120,6 +139,8 @@ def evaluar_validacion(L, EX, EY, VX, VY):
 
 
 def preparaFunciones(Lambda):
+    # Genera funciones que calculan el coste y el gradiente regularizados de la regresion
+    # logistica dado un parametro de regularizacion
     c = lambda Theta, X, Y: coste_reg(Theta, X, Y, Lambda)
     gr = lambda Theta, X, Y: gradiente_reg(Theta, X, Y, Lambda)
 
