@@ -6,7 +6,11 @@ import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
+# Esta clase representa una red neuronal que se puede parametrizar
+#    Ocultas    : numero de capas ocultas de la red
+#    Nodos_capa : una lista de el numero de nodos de cada capa oculta de la red
+#    Entradas   : numero de entradas de la red
+#    Salidas    : numero de salidas de la red
 class red_neuronal:
     
     nodos_capa = []
@@ -23,6 +27,8 @@ class red_neuronal:
         
 
     def forward_prop(self, entrada,matrices_pesos):
+        # Algoritmo de propagacion hacia delante, devuelve la lista de activaciones de cada capa
+        # El ultimo elemento de la lista devuelta es el resultado de la red para las entradas proporcionadas
         activaciones = []
 
         X = entrada
@@ -48,6 +54,7 @@ class red_neuronal:
     
     
     def coste_reg(self,X,y,reg,matrices_pesos):
+        # Calculo del coste con regularizacion para redes neuronales
         activaciones = self.forward_prop(X,matrices_pesos)
         h = activaciones[-1]
         
@@ -63,7 +70,7 @@ class red_neuronal:
     
     
     def gradiente_reg(self, X, y, reg,matrices_pesos):
-        # calculo de gradiente
+        # calculo de gradiente regularizado para redes neuronales
         Deltas = [np.zeros(np.shape(matrices_pesos[i])) for i in range(len(matrices_pesos))]
         activaciones = self.forward_prop(X,matrices_pesos)
 
@@ -120,7 +127,7 @@ class red_neuronal:
     
     
     def desenlazado(self, params_rn):
-        """crea una lista con las matrices formadas con sus correctas dimensiones"""
+        # """crea una lista con las matrices formadas con sus correctas dimensiones"""
         matrices_pesos = []
         
         # matriz desde la entrada hasta la primera capa oculta
@@ -147,7 +154,8 @@ class red_neuronal:
     
 
     def backprop(self, params_rn, X, y, reg):
-        
+        # Devuelve una funcion que calcula el coste y el gradiente de la red neuronal 
+        # Se usa para el optimizar los parametros de la red en la funcion minimize 
         matrices_pesos = self.desenlazado(params_rn)
         
         deltas = self.gradiente_reg(X,y,reg, matrices_pesos)
@@ -163,7 +171,7 @@ class red_neuronal:
     
     
     def prueba_neurona(self, X, y, matrices_pesos):
-        """función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas"""
+        # función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas
         n = len(y)
 
         y = np.ravel(y)
