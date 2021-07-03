@@ -7,7 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Esta clase representa una red neuronal que se puede parametrizar
-#    Ocultas    : numero de capas ocultas de la red
 #    Nodos_capa : una lista de el numero de nodos de cada capa oculta de la red
 #    Entradas   : numero de entradas de la red
 #    Salidas    : numero de salidas de la red
