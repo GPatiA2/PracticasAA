@@ -1,32 +1,23 @@
 import numpy as np
 import fun_basicas as fun
 from scipy.optimize import minimize
+from sklearn.metrics import confusion_matrix
+import seaborn as sn
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 class red_neuronal:
-
-    ocultas = 0
+    
     nodos_capa = []
-    #matrices_pesos = [] # lo dejo aqui pero sino quito la inicialización no puede mejorar
     entradas = 0
     salidas = 0
 
     
-    def __init__ (self , ocultas, nodos_capa, init, entradas, salidas):
+    def __init__ (self, nodos_capa, entradas, salidas):
         self.entradas = entradas
         self.salidas = salidas
-        self.ocultas = ocultas
         self.nodos_capa = nodos_capa
-        
-        #M = np.random.random((nodos_capa[0], self.entradas + 1))  * (2 * init) - init
-        #self.matrices_pesos.append(M)
-        
-        #for i in range(len(self.nodos_capa) - 1):
-        #    M = np.random.random((nodos_capa[i+1], (1 + nodos_capa[i])))  * (2 * init) - init
-        #    self.matrices_pesos.append(M)
-            
-        #M = np.random.random((salidas, (1 + nodos_capa[i + 1])))  * (2 * init) - init
-        #self.matrices_pesos.append(M)
         
         
         
@@ -171,26 +162,6 @@ class red_neuronal:
     
     
     
-    def entrenar(self, X, y, Vx, Vy, Px, Py, reg, iters, init):
-        
-        pesos_ravel = self.init_aleatorio(init)
-        
-        # calculo del minimo
-
-        fmin = minimize(fun = self.backprop , x0 = pesos_ravel , args = (X,y,reg),
-                        method = 'TNC' , jac = True , options = {'maxiter' : iters})
-        
-        matrices_pesos = self.desenlazado(fmin.x)
-
-        p1 = self.prueba_neurona(Vx, Vy, matrices_pesos)
-        print("validación = {}".format(p1))
-        p2 = self.prueba_neurona(Px, Py, matrices_pesos)
-        print("prueba = {}".format(p2))
-
-        return p1, p2
-        
-        
-        
     def prueba_neurona(self, X, y, matrices_pesos):
         """función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas"""
         n = len(y)
@@ -214,3 +185,58 @@ class red_neuronal:
         print(tres.shape)
 
         return (sum((result + 1)%4 == y) / n * 100)
+    
+    
+    
+    def confusion(self, X, y, matrices_pesos):
+        """función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas"""
+        n = len(y)
+
+        y = np.ravel(y)
+
+        forward = self.forward_prop(X, matrices_pesos)
+        
+        result = forward[len(forward)-1]
+
+        result = np.argmax(result, axis=1)
+        
+        df_cm = pd.DataFrame(confusion_matrix(y, (result+1)%4), index = [i for i in "0123"],
+                  columns = [i for i in "0123"])
+        
+        plt.figure(figsize = (7,5))
+        
+        return sn.heatmap(df_cm, annot=True)
+    
+    
+    
+    
+    def entrenar(self, X, y, Vx, Vy, Px, Py, reg, iters, init):
+        
+        pesos_ravel = self.init_aleatorio(init)
+        
+        # calculo del minimo
+
+        fmin = minimize(fun = self.backprop , x0 = pesos_ravel , args = (X,y,reg),
+                        method = 'TNC' , jac = True , options = {'maxiter' : iters})
+        
+        matrices_pesos = self.desenlazado(fmin.x)
+
+        p1 = self.prueba_neurona(Vx, Vy, matrices_pesos)
+        print("validación = {}".format(p1))
+        p2 = self.prueba_neurona(Px, Py, matrices_pesos)
+        print("prueba = {}".format(p2))
+
+        return p1, p2
+    
+    
+    def matriz_confusion(self, X, y, Px, Py,reg, iters, init):
+        pesos_ravel = self.init_aleatorio(init)
+        
+        # calculo del minimo
+
+        fmin = minimize(fun = self.backprop , x0 = pesos_ravel , args = (X,y,reg),
+                        method = 'TNC' , jac = True , options = {'maxiter' : iters})
+        
+        matrices_pesos = self.desenlazado(fmin.x)
+
+        return self.confusion(Px, Py, matrices_pesos)
