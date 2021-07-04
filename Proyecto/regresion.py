@@ -10,6 +10,8 @@ def sigmoide(Z):
     return sigmoide
 
 def prepara_datos(X, y, et):
+    # Transforma el parametro Y en un array que en la posicion i-esima contiene Y2[i] = 0 si Y[i] != et
+    #   y Y2[i] = 1 si Y[i] == et
     Y2 = (y == et) * 1
     ## Aquí hay que hacer ravel de Y2 para pasar de (5000,1) a (5000,1)
     ## y conseguir que funcione como en la practica anterior
