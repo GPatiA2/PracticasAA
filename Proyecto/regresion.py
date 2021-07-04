@@ -5,9 +5,9 @@ import numpy as np
 import scipy.optimize as opt
 
 def sigmoide(Z):
+    # Calculo de la funcion sigmoide
     sigmoide = 1 / (1 + np.exp(-Z))
     return sigmoide
-
 
 def prepara_datos(X, y, et):
     Y2 = (y == et) * 1
@@ -15,19 +15,6 @@ def prepara_datos(X, y, et):
     ## y conseguir que funcione como en la practica anterior
     Y2 = np.ravel(Y2)
     return (X, Y2)
-
-
-def one_hot(y, et):
-    # Transforma y en one_hot con et numero de etiquetas
-    m = len(y)
-
-    y = (y - 1)
-    y_onehot = np.zeros((m, 10))
-
-    for i in range(m):
-        y_onehot[i][y[i]] = 1
-
-    return y_onehot
 
 def coste(Theta, X, Y):
     # Calculo del coste en regresion logistica
