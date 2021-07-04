@@ -1,13 +1,9 @@
 import loader as ld
 import pandas as pd
+import fun_basicas as fun
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.optimize as opt
-
-def sigmoide(Z):
-    # Calculo de la funcion sigmoide
-    sigmoide = 1 / (1 + np.exp(-Z))
-    return sigmoide
 
 def prepara_datos(X, y, et):
     # Transforma el parametro Y en un array que en la posicion i-esima contiene Y2[i] = 0 si Y[i] != et
@@ -20,7 +16,7 @@ def prepara_datos(X, y, et):
 
 def coste(Theta, X, Y):
     # Calculo del coste en regresion logistica
-    G = sigmoide(np.dot(X, Theta))
+    G = fun.sigmoide(np.dot(X, Theta))
     sum1 = np.dot(Y, np.log(G))
     sum2 = np.dot((1-Y), np.log(1 - G + 1e-6))
     return (-1 / X.shape[0]) * (sum1 + sum2)
@@ -28,7 +24,7 @@ def coste(Theta, X, Y):
 def gradiente(Theta, X, Y):
     # Calculo del gradiente de regresion logistica
     m = X.shape[0]
-    G = sigmoide( np.matmul(X,Theta) )
+    G = fun.sigmoide( np.matmul(X,Theta) )
     gradiente  = (1 / len(Y)) * np.matmul(X.T, G - Y)
     return gradiente
 
