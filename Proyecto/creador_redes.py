@@ -1,10 +1,11 @@
 import numpy as np
 import fun_basicas as fun
-from scipy.optimize import minimize
-from sklearn.metrics import confusion_matrix
+import loader as ld
 import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.optimize import minimize
+from sklearn.metrics import confusion_matrix
 
 # Esta clase representa una red neuronal que se puede parametrizar
 #    Nodos_capa : una lista de el numero de nodos de cada capa oculta de la red
@@ -69,7 +70,7 @@ class red_neuronal:
     
     
     def gradiente_reg(self, X, y, reg,matrices_pesos):
-        """ calculo de gradiente regularizado para redes neuronales haciendo uso de las matrices de pesos dadas """ 
+        """ Calculo de gradiente regularizado para redes neuronales haciendo uso de las matrices de pesos dadas """ 
         Deltas = [np.zeros(np.shape(matrices_pesos[i])) for i in range(len(matrices_pesos))]
         activaciones = self.forward_prop(X,matrices_pesos)
 
@@ -109,7 +110,7 @@ class red_neuronal:
     
     def init_aleatorio(self, init):
     
-        """ función para inicializar matrices de pesos aleatoriamente """
+        """ Función para inicializar matrices de pesos aleatoriamente """
         
         matrices_pesos = []
         
@@ -132,7 +133,7 @@ class red_neuronal:
     
     
     def desenlazado(self, params_rn):
-        """ función que crea una lista con las matrices formadas con sus correctas dimensiones """ 
+        """ Función que crea una lista con las matrices formadas con sus correctas dimensiones """ 
         matrices_pesos = []
         
         # matriz desde la entrada hasta la primera capa oculta
@@ -176,7 +177,7 @@ class red_neuronal:
     
     
     def prueba_neurona(self, X, y, matrices_pesos):
-        """ función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas """
+        """ Función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas """
         n = len(y)
 
         y = np.ravel(y)
@@ -189,7 +190,7 @@ class red_neuronal:
         
         # Escrive en pantalla el número de elementos que relaciono con cada clase en orden
         
-        for i in range(salidas):
+        for i in range(self.salidas):
             print(np.where(result == i)[0].shape)
 
         return (sum((result + 1)%4 == y) / n * 100)
@@ -197,7 +198,7 @@ class red_neuronal:
     
     
     def confusion(self, X, y, matrices_pesos):
-        """ función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas 
+        """ Función que devuelve el porcentaje de acierto de una red neuronal utilizando unas matrices de pesos dadas 
             como una matriz de confusión """
         n = len(y)
 
@@ -221,7 +222,7 @@ class red_neuronal:
     
     def entrenar(self, X, y, Vx, Vy, Px, Py, reg, iters, init):
         
-        """ función que para entrenar una la red neuronal creada con unos datos de entrenamiento 'X' e 'y' una serie de iteraciones
+        """ Función que para entrenar una la red neuronal creada con unos datos de entrenamiento 'X' e 'y' una serie de iteraciones
             'iters', con un parametro de regularización 'reg' y con un parametro de inicialización aleatoria de matrices 'init'. 
             Devuelve el porcentaje de aciertos en el conjunto de validación y de prueba """
         
@@ -243,7 +244,7 @@ class red_neuronal:
     
     
     def matriz_confusion(self, X, y, Px, Py,reg, iters, init):
-        """ entrena la red de neuronal y devuelve la matriz de confusión generada con los datos de prueba """
+        """ Entrena la red de neuronal y devuelve la matriz de confusión generada con los datos de prueba """
         
         pesos_ravel = self.init_aleatorio(init)
         
@@ -255,3 +256,46 @@ class red_neuronal:
         matrices_pesos = self.desenlazado(fmin.x)
 
         return self.confusion(Px, Py, matrices_pesos)
+
+
+
+
+def pruebas(redes, Lambdas, salidas, random_state, INIT_EPSILON, iteraciones):
+        """Función para entrenar, validar y probar una serie de formatos de red 'redes' con unos valores
+           de regularización 'Lambda' y un número de 'iteraciones' """
+
+        # cargamos los datos de los dataset
+        Ex, Ey, Vx, Vy, Px, Py = ld.carga_Numpy(random_state)
+        y_onehot = fun.one_hot(Ey, salidas)
+
+        # Los normalizamos
+        Ex2, scaler = ld.normalizar(Ex)
+        Vx2 = scaler.transform(Vx)
+        Px2 = scaler.transform(Px)
+
+
+        # Por cada formato de red se crea la red deseada
+        for red in redes:
+
+            r = red_neuronal(red, Ex2.shape[1], salidas)
+
+            # Por cada valor de LAmbda y cada valore de iteración se ejecuta la red con ese Lambda
+            # esas iteraciones y se guarda el porcentaje en el conjunto de validación y prueba
+            for L in Lambdas:
+
+                validaciones = []
+                pruebas = []
+
+                for i in range(len(iteraciones)):
+                    p1, p2 = r.entrenar(Ex2, y_onehot, Vx2, Vy, Px2, Py, L, iteraciones[i], INIT_EPSILON)
+                    validaciones.append(p1)
+                    pruebas.append(p2)
+
+                # Se dibujan las graficas de aciertos por cada red y cada valor de Lambda
+
+                plt.figure()
+                plt.title("red: {}, Lambda = {}".format(red, L))
+                plt.plot(np.array(iteraciones), np.array(validaciones), label = 'validaciones' , Color = 'red')
+                plt.plot(np.array(iteraciones), np.array(pruebas), label = 'pruebas' , Color = 'blue')
+                plt.legend()
+                plt.show()
