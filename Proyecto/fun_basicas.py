@@ -5,22 +5,6 @@ def sigmoide(Z):
     sigmoide = 1 / (1 + np.exp(-Z))
     return sigmoide
 
-def preparaFunciones(Lambda):
-    c = lambda Theta, X, Y: coste_reg(Theta, X, Y, Lambda)
-    gr = lambda Theta, X, Y: gradiente_reg(Theta, X, Y, Lambda)
-
-    return (c, gr)
-
-
-def prepara_datos(X, y, et):
-    # Transforma el parametro Y en un array que en la posicion i-esima contiene Y2[i] = 0 si Y[i] != et
-    #   y Y2[i] = 1 si Y[i] == et
-    Y2 = (y == et) * 1
-    ## Aquí hay que hacer ravel de Y2 para pasar de (5000,1) a (5000,1)
-    ## y conseguir que funcione como en la practica anterior
-    Y2 = np.ravel(Y2)
-    return (X, Y2)
-
 
 def one_hot(y, et):
     # Transforma y en one_hot con et numero de etiquetas
