@@ -41,6 +41,7 @@ def coste_reg(Theta, X, Y, Lambda):
 
     return c + (Lambda / (2 * m)) * e
 
+
 def gradiente_reg(Theta,X,Y,Lambda):
     # Gradiente regularizado de la regresion logistica
     # Emplea la funcion gradiente anterior
@@ -61,7 +62,7 @@ def optimiza_reg(X, Y, Lambda, et):
     T = np.zeros(X.shape[1])
 
     result = opt.fmin_tnc(func=c, x0=T, fprime=gr, args=(X, Y))
-    c_f = coste(result[0], X, Y)
+    c_f = coste(result[0], X, Y) 
     print("coste:", c_f)
     return result[0]
 
@@ -75,28 +76,6 @@ def oneVsAll(X, y, num_etiquetas, reg):
         p = optimiza_reg(X, y, reg, et)
         params.append(p)
     return np.array(params)
-
-
-def evalua():
-    X, Y, _ = ld.cargarDatos()
-    X = X.to_numpy()
-    Y = Y.to_numpy()
-
-    L = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30]
-
-    for Lamda in L:
-        Theta = oneVsAll(X, Y, 4, Lamda)
-        asig = []
-        for i in range(X.shape[0]):
-            l = np.dot(Theta, X[i])
-            m = max(l)
-            i = np.where(l == m)
-            asig.append(i[0][0])
-
-        y2 = np.ravel(Y)
-        t = (asig == y2) * 1
-        perc = (sum(t) / X.shape[0]) * 100
-        print("Porcentaje de aciertos con lambda = {} : ".format(Lamda), perc, "%")
 
 
 def evaluar_validacion(L, EX, EY, VX, VY):
